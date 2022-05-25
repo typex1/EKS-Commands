@@ -32,6 +32,10 @@ eksctl create cluster \
 --version 1.21 \
 --region ${AWS_REGION}
 ```
+Create a serverless cluster using Fargate:
+```
+eksctl create-cluster --name eks-fargate-cluster --region us-east-1 --fargate
+```
 
 ## Cluster deletion with ekstcl:
 ```
@@ -61,14 +65,25 @@ kubectl get daemonsets -n kube-system
 cp ~/.kube/config ~/.kube/config.back
 ```
 
-## Create a deployment:
+## Deployment related:
+K8s doc: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 Make a simple nginx web server deployment in namespace "web":
 ```
 kubectl create deployment nginx --image=nginx -n web
 ```
 Create a deployment based on a yaml file:
-````
+```
 kubectl apply -f scripts/nginx-deployment.yaml
+```
+List all deployments in all namespaces, both as a list and in yaml output:
+```
+kubectl get deployments --all-namespaces
+kubectl get deployments --all-namespaces -o yaml > scripts/all-deployments-new.yaml
+# note: deployments are listed in the yaml, one deployment per entry in "items:" list
+```
+Delete a deployment
+```
+kubectl delete deployment <deployment-name>
 ```
 
 ## Make deployment accessible from the outside (expose it):
@@ -77,7 +92,7 @@ Expose the above nginx server on port 80 by using an Elastic Load Balancer:
 kubectl expose deployment nginx --port=80 --name nginx --type=LoadBalancer -n web
 ```
 
-Get Load Balancer endpoint information:
+Get Load Balancer endpoint information for a specific service and namespace:
 ```
 kubectl get service nginx -n web
 ```
