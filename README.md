@@ -2,20 +2,26 @@
 
 A collection of useful EKS and related (kubectl, aws eks, eksctl) commands:
 
+## Orientation:
+Recap over a generic K8s architecture: https://kubernetes.io/docs/concepts/overview/components/
+Show all K8s API resources (see name, shortname, namespace, kind = node, pod, service, ...):
+```
+kubectl api-resources
+```
+
+
 ## Install typical tools:
 kubectl on Amazon Linux 2, amd64:
 ```
 sudo curl --location -o /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
 sudo chmod +x /usr/local/bin/kubectl
 kubectl version --short --client
-
 ```
 eksctl on Amazon Linux 2, amd64:
 ```
 curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 sudo mv -v /tmp/eksctl /usr/local/bin
 eksctl version
-
 ```
 
 ## Cluster creation with eksctl on an EC2 instance:
@@ -70,9 +76,18 @@ do
 done
 ```
 
-## Create a kubeconfig backup (default path):
+## kubeconfig actions:
+Create a kubeconfig backup (default path):
 ```
 cp ~/.kube/config ~/.kube/config.back
+```
+Use a non-default kubeconfig:
+```
+export KUBECONFIG=/Users/fspiess/Documents/Youtube/EKS/config
+```
+Create an updated kubeconfig named "config" in the current directory:
+```
+aws eks --region eu-central-1 update-kubeconfig --name eks-cluster --kubeconfig config --output json
 ```
 
 ## Deployment related:
@@ -115,6 +130,10 @@ kubectl get pod --all-namespaces -w
 ```
 
 ## Make deployment accessible from the outside (expose it):
+Expose nginx server - internal port 80 exposed to external service port 80:
+```
+kubectl create service nodeport nginx --tcp=80:80
+```
 Expose the above nginx server on port 80 by using an Elastic Load Balancer:
 ```
 kubectl expose deployment nginx --port=80 --name nginx --type=LoadBalancer -n web
@@ -123,6 +142,16 @@ kubectl expose deployment nginx --port=80 --name nginx --type=LoadBalancer -n we
 Get Load Balancer endpoint information for a specific service and namespace:
 ```
 kubectl get service nginx -n web
+```
+## Actions inside of a Pod:
+Perform a non-interactive "curl" inside of a pod:
+```
+kubectl exec "$(kubectl get pod -l app=nginx -o jsonpath='{.items[0].metadata.name}')" -- curl -sS localhost:80/
+```
+Run an interactive bash shell within a Pod:
+```
+POD_NAME=$(kubectl get pods -n default -l app=nginx -o jsonpath='{.items[0].metadata.name}') && echo $POD_NAME
+kubectl exec -n default -it ${POD_NAME} -- /bin/bash
 ```
 
 ## OIDC (OpenId Connect) related:
@@ -167,7 +196,7 @@ Create a temp container, specify a serviceAccount and open a bash shell into the
 kubectl run my-shell --rm -i --tty --image amazonlinux --overrides='{ "spec": { "serviceAccount": "aws-s3-read" } }' -- bash
 ```
 
-If needed, perform some installations inside of the container:
+If needed, perform some **installations inside of the container**:
 ```
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.6.2.zip" -o "awscliv2.zip"
 yum install unzip less groff -y
