@@ -54,7 +54,18 @@ AWS_REGION=$(curl --silent http://169.254.169.254/latest/meta-data/placement/reg
 eksctl create iamserviceaccount --name aws-s3-read --namespace default --cluster ${CLUSTER} --attach-policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess --approve --region ${AWS_REGION}
 ```
 
-# Create a temp container:
+## Permissions K8s <-> IAM
+Display details of the aws-auth configMap:
+```
+kubectl describe configmap -n kube-system aws-auth
+```
+
+Create namespace web, a "web-admins-role" granting access, and a "web-admins-binding" that grants permissions defined in the role to "web-admins-group"
+```
+kubectl apply -f ~/scripts/task3/namespace-role-rolebinding.yaml
+```
+
+## Create a temp container:
 Create a temp container, specify a serviceAccount and open a bash shell into the container. After bash is terminated, remover everything (--rm):
 ```
 kubectl run my-shell --rm -i --tty --image amazonlinux --overrides='{ "spec": { "serviceAccount": "aws-s3-read" } }' -- bash
@@ -68,14 +79,25 @@ unzip awscliv2.zip
 ./aws/install
 ```
 
-# Identities:
+## Identities:
 Verify my current identity:
 ```
 aws sts get-caller-identity
 ```
 
-# Use Calico, a network policy engine for K8s:
+## Use Calico, a network policy engine for K8s:
 Verify the Calico daemonset is running:
 ```
 kubectl get daemonset calico-node --namespace kube-system
+```
+
+## Deny/allow activities:
+Deny all traffic for a given namespace (see yaml file in scripts/)
+```
+kubectl apply -f ~/scripts/task5/deny-traffic.yaml
+```
+
+Allow external web access to an nginx pod in a given namespace (see yaml file in scripts/)
+```
+kubectl apply -f ~/scripts/allow-external-web-access.yaml
 ```
