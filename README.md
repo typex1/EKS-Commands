@@ -33,6 +33,7 @@ eksctl create cluster \
 --region ${AWS_REGION}
 ```
 Create a serverless cluster using Fargate:
+see this 12 min. video as a starter: https://www.youtube.com/watch?v=DLmKMBZ_m3w
 ```
 eksctl create-cluster --name eks-fargate-cluster --region us-east-1 --fargate
 ```
@@ -79,6 +80,10 @@ K8s doc: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
 Make a simple nginx web server deployment in namespace "web":
 ```
 kubectl create deployment nginx --image=nginx -n web
+```
+For a quick test, create another nginx deployment using a different name:
+```
+kubectl create deployment nginx_2 --image=nginx -n web
 ```
 Create a deployment based on a yaml file:
 ```
