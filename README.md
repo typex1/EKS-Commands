@@ -2,6 +2,22 @@
 
 A collection of useful EKS and related (kubectl, aws eks, eksctl) commands:
 
+## Install typical tools:
+kubectl on Amazon Linux 2, amd64:
+```
+sudo curl --location -o /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+sudo chmod +x /usr/local/bin/kubectl
+kubectl version --short --client
+```
+eksctl on Amazon Linux 2, amd64:
+```
+curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv -v /tmp/eksctl /usr/local/bin
+eksctl version
+
+```
+
+
 ## Getting an overview over the cluster setup:
 
 List all K8s resources in the **default** namespace (-o wide = give more details):
@@ -63,6 +79,18 @@ kubectl describe configmap -n kube-system aws-auth
 Create namespace web, a "web-admins-role" granting access, and a "web-admins-binding" that grants permissions defined in the role to "web-admins-group"
 ```
 kubectl apply -f ~/scripts/task3/namespace-role-rolebinding.yaml
+```
+
+Add a new IAM role to RBAC group mapping to the aws-auth ConfigMap:
+```
+CLUSTER=$(aws eks list-clusters | jq -r .clusters[0]) && echo $CLUSTER
+AWS_REGION=$(curl --silent http://169.254.169.254/latest/meta-data/placement/region) && echo $AWS_REGION
+export WEB_ADMIN_ARN=$(aws iam list-roles | jq -r '.[] | .[] | .Arn' | grep -i web) && echo "The ARN for the WebAdminRole is" $WEB_ADMIN_ARN
+eksctl create iamidentitymapping --cluster ${CLUSTER} --group web-admins-group --username web-admin --region ${AWS_REGION} --arn ${WEB_ADMIN_ARN}
+```
+Check the new group in the aws-auth ConfigMap:
+```
+kubectl describe configmap -n kube-system aws-auth
 ```
 
 ## Create a temp container:
