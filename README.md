@@ -1,8 +1,8 @@
-## EKS Commands
+# EKS Commands
 
 A collection of useful EKS and related (kubectl, aws eks, eksctl) commands:
 
-# Getting an overview over the cluster setup:
+## Getting an overview over the cluster setup:
 
 List all K8s resources in the **default** namespace (-o wide = give more details):
 ```
@@ -14,18 +14,18 @@ Same for "web" namespace (--all-namespaces for **all namespaces**):
 kubectl get all -n web
 ```
 
-# Create a kubeconfig backup:
+## Create a kubeconfig backup:
 ```
 cp ~/.kube/config ~/.kube/config.back
 ```
 
-# Create a deployment:
+## Create a deployment:
 Make a simple nginx web server deployment in namespace "web":
 ```
 kubectl create deployment nginx --image=nginx -n web
 ```
 
-# Make deployment accessible from the outside (expose it):
+## Make deployment accessible from the outside (expose it):
 Expose the above nginx server on port 80 by using an Elastic Load Balancer:
 ```
 kubectl expose deployment nginx --port=80 --name nginx --type=LoadBalancer -n web
@@ -36,7 +36,7 @@ Get Load Balancer endpoint information:
 kubectl get service nginx -n web
 ```
 
-# OIDC (OpenId Connect) related:
+## OIDC (OpenId Connect) related:
 List all OIDC providers:
 ```
 aws iam list-open-id-connect-providers
