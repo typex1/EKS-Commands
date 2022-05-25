@@ -59,8 +59,17 @@ List daemonsets for namespace kube-system:
 ```
 kubectl get daemonsets -n kube-system
 ```
+Dump relevant configs to new directories:
+```
+for n in $(kubectl get -o=name pvc,configmap,serviceaccount,secret,ingress,service,deployment,statefulset,hpa,job,cronjob)
+do
+    echo checking $n
+    mkdir -p $(dirname $n)
+    kubectl get $n -o yaml > $n.yaml
+done
+```
 
-## Create a kubeconfig backup:
+## Create a kubeconfig backup (default path):
 ```
 cp ~/.kube/config ~/.kube/config.back
 ```
@@ -81,9 +90,23 @@ kubectl get deployments --all-namespaces
 kubectl get deployments --all-namespaces -o yaml > scripts/all-deployments-new.yaml
 # note: deployments are listed in the yaml, one deployment per entry in "items:" list
 ```
-Delete a deployment
+Get details of all deployments (or provide a specific deployment name):
+```
+kubectl describe deployments
+```
+**Delete** a deployment
 ```
 kubectl delete deployment <deployment-name>
+```
+
+## Node and Pod related
+Get nodes (irrespective of EC2 or fargate based nodes):
+```
+kubectl get nodes
+```
+Get Pods in all namespaces, (-w = keep watching their state, also works with other commands):
+```
+kubectl get pod --all-namespaces -w
 ```
 
 ## Make deployment accessible from the outside (expose it):
