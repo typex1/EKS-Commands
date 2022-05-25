@@ -8,6 +8,7 @@ kubectl on Amazon Linux 2, amd64:
 sudo curl --location -o /usr/local/bin/kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
 sudo chmod +x /usr/local/bin/kubectl
 kubectl version --short --client
+
 ```
 eksctl on Amazon Linux 2, amd64:
 ```
@@ -15,6 +16,26 @@ curl --location "https://github.com/weaveworks/eksctl/releases/latest/download/e
 sudo mv -v /tmp/eksctl /usr/local/bin
 eksctl version
 
+```
+
+## Cluster creation with eksctl on an EC2 instance:
+```
+export AWS_REGION=$(curl --silent http://169.254.169.254/latest/meta-data/placement/region) && echo $AWS_REGION
+eksctl create cluster \
+--name dev-cluster \
+--nodegroup-name dev-nodes \
+--node-type t3.small \
+--nodes 3 \
+--nodes-min 1 \
+--nodes-max 4 \
+--managed \
+--version 1.21 \
+--region ${AWS_REGION}
+```
+
+## Cluster deletion with ekstcl:
+```
+eksctl delete cluster --name=<cluster-name>
 ```
 
 
