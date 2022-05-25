@@ -66,6 +66,10 @@ Make a simple nginx web server deployment in namespace "web":
 ```
 kubectl create deployment nginx --image=nginx -n web
 ```
+Create a deployment based on a yaml file:
+````
+kubectl apply -f scripts/nginx-deployment.yaml
+```
 
 ## Make deployment accessible from the outside (expose it):
 Expose the above nginx server on port 80 by using an Elastic Load Balancer:
