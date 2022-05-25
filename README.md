@@ -14,6 +14,11 @@ Same for "web" namespace (--all-namespaces for **all namespaces**):
 kubectl get all -n web
 ```
 
+List daemonsets for namespace kube-system:
+```
+kubectl get daemonsets -n kube-system
+```
+
 ## Create a kubeconfig backup:
 ```
 cp ~/.kube/config ~/.kube/config.back
@@ -47,4 +52,30 @@ Create a new iam role and a corresponding K8s service account
 CLUSTER=$(aws eks list-clusters | jq -r .clusters[0]) && echo $CLUSTER
 AWS_REGION=$(curl --silent http://169.254.169.254/latest/meta-data/placement/region) && echo $AWS_REGION
 eksctl create iamserviceaccount --name aws-s3-read --namespace default --cluster ${CLUSTER} --attach-policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess --approve --region ${AWS_REGION}
+```
+
+# Create a temp container:
+Create a temp container, specify a serviceAccount and open a bash shell into the container. After bash is terminated, remover everything (--rm):
+```
+kubectl run my-shell --rm -i --tty --image amazonlinux --overrides='{ "spec": { "serviceAccount": "aws-s3-read" } }' -- bash
+```
+
+If needed, perform some installations inside of the container:
+```
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.6.2.zip" -o "awscliv2.zip"
+yum install unzip less groff -y
+unzip awscliv2.zip
+./aws/install
+```
+
+# Identities:
+Verify my current identity:
+```
+aws sts get-caller-identity
+```
+
+# Use Calico, a network policy engine for K8s:
+Verify the Calico daemonset is running:
+```
+kubectl get daemonset calico-node --namespace kube-system
 ```
