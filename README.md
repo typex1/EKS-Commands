@@ -226,3 +226,10 @@ Allow external web access to an nginx pod in a given namespace (see yaml file in
 ```
 kubectl apply -f ~/scripts/allow-external-web-access.yaml
 ```
+
+## Upgrade activities:
+use eksctl to upgrade a managed node group. For example:
+```
+$ eksctl upgrade nodegroup --name=node-group-name \ --cluster=cluster-name
+```
+
