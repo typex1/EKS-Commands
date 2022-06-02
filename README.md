@@ -233,3 +233,4 @@ use eksctl to upgrade a managed node group. For example:
 $ eksctl upgrade nodegroup --name=node-group-name \ --cluster=cluster-name
 ```
 
+## Troubleshooting a cluster:
